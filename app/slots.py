@@ -120,6 +120,10 @@ def extract(t, field):
         return extract_birth(t)
     if field == "area_text":
         m = re.search(r"([\u4e00-\u9fa5]{2,}(?:区|县|市))?([\u4e00-\u9fa5]{2,}(?:路|街|道|镇|村|小区|苑|里|巷))", t)
+        # ★ 「里/巷」是里弄后缀，但「下个里」「这个里」也是合法汉字组合。
+        #   实测「下个里拜一」（下周一的错字）被抽成地名「下个里」，污染候选数据。
+        if m and re.search(r"[个这那哪上下前后]里$", m.group(0)):
+            m = None
         if m:
             v = (m.group(1) or "") + m.group(2)
             # ★ 抽掉前导动词：住文一西路 → 文一西路（上一系列单踩过：地址召回 100%→81%）
@@ -146,6 +150,17 @@ def extract(t, field):
         m = re.search(r"(现在|马上|今天|明天|后天|随时|本周末|下周[一二三四五六日天]?|\d+月\d+[日号])", t)
         return m.group(1) if m else None
     if field == "experience_text":
+        # ★ 同音错字先指回标准形态（三黏→三年、几各→几个、没又→没有）。
+        #   经验表达是「数字+单位」的有限集合，与地名/时间同构，可复用指向机制。
+        #   只做同音替换，替换后仍走下面的规则，认不出就返回 None（不猜）。
+        from . import fuzzy as _fz
+        t = _fz.repair_exp(t)
+        # canon 表认得「三年半」这类带「半」的说法，规则正则不认 → 先问 canon。
+        # 原来「送了三年半外卖」在纯规则路径下返回 None，而 canon 能给出 3 年。
+        from . import canon as _cn
+        _cv = _cn.exp(t)[0]
+        if _cv:
+            return _cv
         if re.search(r"没(做过|干过|经验)|无经验|零经验|新手|第一次|"
                      r"(一点|任何|毫无)\s*经验\s*都?\s*(没有|无)|从没(送|干|做)过", t):
             return "无经验"
@@ -153,7 +168,7 @@ def extract(t, field):
         if m:
             n = _cn2int(m.group(1))
             return ("%d年配送经验" % n) if n else None
-        if re.search(r"干过|做过|跑过", t):
+        if re.search(r"干过|干过阵|做过|做了|跑过|送过|当过|做过阵", t):
             return "有配送经验"
         return None
     return None
@@ -330,6 +345,13 @@ class Session(object):
             v = got.get(target)
             if v not in (None, "") and not plausible(target, v, clean):
                 v = None
+            # 地名拿不准 → 把候选摆给用户选，而不是猜一个写进去
+            opts = list(getattr(self.pipeline, "pending_choice", []) or [])
+            if target == "area_text" and v in (None, "") and opts:
+                self.actions.append("confirm_area")
+                return {"reply": "您说的位置我不太确定，是下面哪一个？",
+                        "quick_replies": [c for c, _s in opts],
+                        "progress": self.progress(), "actions": self.actions}
             if v not in (None, ""):
                 # ★ 未成年检查必须在【落库之前】：先写 data 再判，会让
                 #   progress 显示 2/7、且 birth_ym 留在会话状态里 —— 等于把未成年人

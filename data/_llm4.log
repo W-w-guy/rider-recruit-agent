@@ -1,0 +1,35 @@
+{
+ "model": "llm:deepseek-flash",
+ "n": 300,
+ "sec": 161.4,
+ "case_ok": 295,
+ "case_total": 300,
+ "field_ok": 853,
+ "field_total": 858,
+ "by_type": {
+  "normal": {
+   "ok": 120,
+   "n": 120
+  },
+  "dialect": {
+   "ok": 42,
+   "n": 45
+  },
+  "typo": {
+   "ok": 43,
+   "n": 45
+  },
+  "injection": {
+   "ok": 45,
+   "n": 45
+  },
+  "sensitive": {
+   "ok": 25,
+   "n": 25
+  },
+  "minor": {
+   "ok": 20,
+   "n": 20
+  }
+ }
+}

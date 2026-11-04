@@ -1,0 +1,15 @@
+{
+ "model": "llm:deepseek-flash",
+ "n": 45,
+ "sec": 15.0,
+ "case_ok": 41,
+ "case_total": 45,
+ "field_ok": 41,
+ "field_total": 45,
+ "by_type": {
+  "blind": {
+   "ok": 41,
+   "n": 45
+  }
+ }
+}

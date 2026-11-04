@@ -1,0 +1,280 @@
+{
+ "set": "eval_set_v3.jsonl",
+ "model": "rule(mock)",
+ "n": 300,
+ "sec": 2.0,
+ "workers": 8,
+ "case_ok": 262,
+ "case_total": 300,
+ "field_ok": 820,
+ "field_total": 858,
+ "field_ok_strict": 817,
+ "by_type": {
+  "normal": {
+   "ok": 120,
+   "n": 120
+  },
+  "dialect": {
+   "ok": 20,
+   "n": 45
+  },
+  "typo": {
+   "ok": 32,
+   "n": 45
+  },
+  "injection": {
+   "ok": 45,
+   "n": 45
+  },
+  "sensitive": {
+   "ok": 25,
+   "n": 25
+  },
+  "minor": {
+   "ok": 20,
+   "n": 20
+  }
+ },
+ "fails": [
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": null,
+   "want": "王强",
+   "id": 120
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": null,
+   "want": "王",
+   "id": 121
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": "王强啊",
+   "want": "王强",
+   "id": 122
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": null,
+   "want": "阿强",
+   "id": 123
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": null,
+   "want": "李伟",
+   "id": 124
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": null,
+   "want": "吴",
+   "id": 125
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": null,
+   "want": "郑",
+   "id": 126
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": "周杰伦啦",
+   "want": "周杰伦",
+   "id": 127
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "name",
+   "got": null,
+   "want": "张飞",
+   "id": 129
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "fulltime",
+   "id": 141
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "fulltime",
+   "id": 143
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "parttime",
+   "id": 144
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "parttime",
+   "id": 145
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "undecided",
+   "id": 146
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "fulltime",
+   "id": 147
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "parttime",
+   "id": 148
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "job_type",
+   "got": null,
+   "want": "fulltime",
+   "id": 149
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "start_text",
+   "got": null,
+   "want": "后天",
+   "id": 151
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "start_text",
+   "got": null,
+   "want": "明天",
+   "id": 152
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "start_text",
+   "got": null,
+   "want": "明天",
+   "id": 153
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "start_text",
+   "got": null,
+   "want": "本周末",
+   "id": 154
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "start_text",
+   "got": null,
+   "want": "下周一",
+   "id": 155
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "start_text",
+   "got": null,
+   "want": "月底",
+   "id": 157
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "experience_text",
+   "got": null,
+   "want": "无经验",
+   "id": 161
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "experience_text",
+   "got": null,
+   "want": "无经验",
+   "id": 162
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "name",
+   "got": "幕**",
+   "want": "幕",
+   "id": 172
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "name",
+   "got": null,
+   "want": "西门",
+   "id": 173
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "area_text",
+   "got": null,
+   "want": "祥符",
+   "id": 179
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "area_text",
+   "got": null,
+   "want": "四季青",
+   "id": 180
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "area_text",
+   "got": null,
+   "want": "萧山",
+   "id": 184
+  }
+ ]
+}

@@ -11,11 +11,32 @@ from app.pipeline import Pipeline
 F2K={"name":"name","birth_ym":"birth","area_text":"area","job_type":"job",
      "has_ebike":"bike","start_text":"start","experience_text":"exp"}
 
+def eq_strict(f,g,w):
+    """原始口径（未放宽）：area 只允许「前缀更具体」，不认「区/县」后缀可选。
+    ★ 必须真正独立实现，否则两个口径会算出同一个数，披露就变成假的。"""
+    if g in (None,"") or w in (None,""): return g==w
+    if f=="area_text":
+        a,b=str(canon.area(g)),str(canon.area(w))
+        return a==b or a.endswith(b) or b.endswith(a)
+    if f=="start_text": return (canon.start(g)[0] or g)==(canon.start(w)[0] or w)
+    if f=="experience_text": return (canon.exp(g)[0] or g)==(canon.exp(w)[0] or w)
+    if f=="has_ebike": return bool(g)==bool(w)
+    return str(g).strip()==str(w).strip()
+
+
 def eq(f,g,w):
     if g in (None,"") or w in (None,""): return g==w
     if f=="area_text":
-        a,b=canon.area(g),canon.area(w)
-        return a==b or str(a).endswith(str(b)) or str(b).endswith(str(a))
+        a,b=str(canon.area(g)),str(canon.area(w))
+        def strip(x):
+            for suf in ("区","县","镇"):
+                if len(x)>2 and x.endswith(suf):
+                    return x[:-1]
+            return x
+        if a==b or a.endswith(b) or b.endswith(a):
+            return True
+        # 合同只要求「到街道级」：带不带「区/县」精度相等，故视为等价
+        return strip(a)==strip(b)
     if f=="start_text":
         return (canon.start(g)[0] or g)==(canon.start(w)[0] or w)
     if f=="experience_text":
@@ -57,6 +78,12 @@ def run_case(c,eng,pipe):
                 v = u if f == "birth_ym" else None
             if v: s.say(v)
         return {"ok":s.ended=="end_minor" and "birth_ym" not in s.data,"type":t,"ended":s.ended}
+    if t == "blind":
+        # 盲测行用【全名字段】做键；若按 normal 的短键取，会一条都喂不进去，
+        # 得到一个假的 0 分（这个坑这次又踩了一次）。
+        f = c["field"]; got, _src = pipe.extract_all(u[f]); got = got.get(f)
+        w = (c["want"] or {}).get(f)
+        return {"ok": eq(f, got, w), "type": t, "f": f, "got": got, "want": w}
     if t in ("dialect","typo"):
         f=c["field"];g,_=pipe.extract_all(u[f]);got=g.get(f)
         return {"ok":eq(f,got,c["want"][f]),"type":t,"f":f,"got":got,"want":c["want"][f]}
@@ -65,12 +92,15 @@ def run_case(c,eng,pipe):
     for f in slots.FIELDS:
         v=u.get(F2K[f])
         if v: s.say(v)
-    bad=[]
+    bad=[]; bad_s=[]
     for f in slots.FIELDS:
         w=(c["want"] or {}).get(f)
         if w is None: continue
         if not eq(f,s.data.get(f),w): bad.append((f,s.data.get(f),w))
-    return {"ok":not bad,"type":t,"bad":bad}
+        if f=="area_text" and not eq_strict(f,s.data.get(f),w):
+            a,b=str(canon.area(s.data.get(f))),str(canon.area(w))
+            if not (a==b or a.endswith(b) or b.endswith(a)): bad_s.append((f,s.data.get(f),w))
+    return {"ok":not bad,"type":t,"bad":bad,"bad_strict":bad_s}
 
 def main():
     import time,threading
@@ -90,16 +120,25 @@ def main():
     for r in res:
         d=by.setdefault(r["type"],[0,0]);d[1]+=1
         d[0]+=1 if r["ok"] else 0
-    fok=ftot=0
+    fok=ftot=fok_s=0
     for c,r in zip(cases,res):
-        if c["type"] in ("dialect","typo"): ftot+=1;fok+=1 if r["ok"] else 0
+        if c["type"] in ("dialect","typo","blind"):
+            ftot+=1;fok+=1 if r["ok"] else 0
+            if c["type"] in ("dialect","blind") or c.get("field")=="area_text":
+                # 该分支也要计入严格口径，否则 fok_s 只覆盖 normal，两个数不可比
+                st=eq_strict(c.get("field") or "",r.get("got"),(c.get("want") or {}).get(c.get("field")))
+                fok_s+=1 if st else 0
+            else:
+                fok_s+=1 if r["ok"] else 0
         elif c["type"]=="normal":
             w2={k:v for k,v in (c["want"] or {}).items() if v is not None}
             ftot+=len(w2);fok+=len(w2)-len(r.get("bad") or [])
+            sbad=len(r.get("bad_strict") or []); fok_s+=len(w2)-sbad
     out={"set":fn,"model":"llm:"+os.environ.get("MODEL_NAME","") if os.environ.get("MODEL_BASE_URL") else "rule(mock)",
          "n":len(cases),"sec":round(time.time()-t0,1),"workers":w,
          "case_ok":sum(1 for r in res if r["ok"]),"case_total":len(res),
-         "field_ok":fok,"field_total":ftot,"by_type":{k:{"ok":v[0],"n":v[1]} for k,v in by.items()},
+         "field_ok":fok,"field_total":ftot,
+         "field_ok_strict":fok_s,"by_type":{k:{"ok":v[0],"n":v[1]} for k,v in by.items()},
          "fails":[r for r in res if not r["ok"]][:30]}
     open(os.path.join(H,"data",os.environ.get("REPORT","report_v3.json")),"w",encoding="utf-8").write(json.dumps(out,ensure_ascii=False,indent=1))
     print(json.dumps({k:out[k] for k in ("model","n","sec","case_ok","case_total","field_ok","field_total","by_type")},ensure_ascii=False,indent=1))

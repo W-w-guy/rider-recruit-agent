@@ -1,0 +1,52 @@
+{
+ "set": "blind2.jsonl",
+ "model": "llm:deepseek-flash",
+ "n": 45,
+ "sec": 15.0,
+ "workers": 6,
+ "case_ok": 41,
+ "case_total": 45,
+ "field_ok": 41,
+ "field_total": 45,
+ "field_ok_strict": 41,
+ "by_type": {
+  "blind": {
+   "ok": 41,
+   "n": 45
+  }
+ },
+ "fails": [
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": "两天后",
+   "want": null,
+   "id": 20
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "下周五",
+   "id": 21
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "下周一",
+   "id": 25
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "experience_text",
+   "got": null,
+   "want": "有配送经验",
+   "id": 40
+  }
+ ]
+}

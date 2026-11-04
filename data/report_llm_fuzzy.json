@@ -1,0 +1,152 @@
+{
+ "set": "eval_set_v3.jsonl",
+ "model": "llm:deepseek-flash",
+ "n": 300,
+ "sec": 161.8,
+ "workers": 10,
+ "case_ok": 286,
+ "case_total": 300,
+ "field_ok": 844,
+ "field_total": 858,
+ "field_ok_strict": 843,
+ "by_type": {
+  "normal": {
+   "ok": 120,
+   "n": 120
+  },
+  "dialect": {
+   "ok": 42,
+   "n": 45
+  },
+  "typo": {
+   "ok": 34,
+   "n": 45
+  },
+  "injection": {
+   "ok": 45,
+   "n": 45
+  },
+  "sensitive": {
+   "ok": 25,
+   "n": 25
+  },
+  "minor": {
+   "ok": 20,
+   "n": 20
+  }
+ },
+ "fails": [
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "start_text",
+   "got": null,
+   "want": "明天",
+   "id": 152
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "experience_text",
+   "got": null,
+   "want": "无经验",
+   "id": 161
+  },
+  {
+   "ok": false,
+   "type": "dialect",
+   "f": "experience_text",
+   "got": null,
+   "want": "无经验",
+   "id": 162
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "area_text",
+   "got": "拱墅区详符",
+   "want": "祥符",
+   "id": 179
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "start_text",
+   "got": null,
+   "want": "明天",
+   "id": 192
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "start_text",
+   "got": null,
+   "want": "下周一",
+   "id": 193
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "start_text",
+   "got": null,
+   "want": "后天",
+   "id": 194
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "start_text",
+   "got": null,
+   "want": "本周末",
+   "id": 195
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "start_text",
+   "got": null,
+   "want": "月底",
+   "id": 197
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "start_text",
+   "got": null,
+   "want": "下周一",
+   "id": 198
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "experience_text",
+   "got": "有配送经验",
+   "want": "3年配送经验",
+   "id": 201
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "experience_text",
+   "got": null,
+   "want": "无经验",
+   "id": 202
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "experience_text",
+   "got": "有配送经验",
+   "want": "2年配送经验",
+   "id": 207
+  },
+  {
+   "ok": false,
+   "type": "typo",
+   "f": "experience_text",
+   "got": null,
+   "want": "有配送经验",
+   "id": 208
+  }
+ ]
+}

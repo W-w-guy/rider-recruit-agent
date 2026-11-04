@@ -1,0 +1,100 @@
+{
+ "set": "blind2.jsonl",
+ "model": "rule(mock)",
+ "n": 45,
+ "sec": 0.2,
+ "workers": 8,
+ "case_ok": 35,
+ "case_total": 45,
+ "field_ok": 35,
+ "field_total": 45,
+ "field_ok_strict": 35,
+ "by_type": {
+  "blind": {
+   "ok": 35,
+   "n": 45
+  }
+ },
+ "fails": [
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "area_text",
+   "got": null,
+   "want": "滨江",
+   "id": 3
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "area_text",
+   "got": null,
+   "want": "萧山",
+   "id": 5
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "本周末",
+   "id": 15
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "下周三",
+   "id": 16
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "下周五",
+   "id": 21
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "本周末",
+   "id": 22
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "月底",
+   "id": 24
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": null,
+   "want": "下周一",
+   "id": 25
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "start_text",
+   "got": "下周",
+   "want": "下周五",
+   "id": 26
+  },
+  {
+   "ok": false,
+   "type": "blind",
+   "f": "experience_text",
+   "got": null,
+   "want": "有配送经验",
+   "id": 40
+  }
+ ]
+}
