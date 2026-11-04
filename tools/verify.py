@@ -119,6 +119,9 @@ def t_no_crlf():
     """文本文件不得含 CRLF：否则 git 归一化后 MANIFEST 哈希必然不符。"""
     hits = []
     for dp, dns, fns in os.walk(HERE):
+        # ★ 必须剪掉 .git/.venv/node_modules：vendor 目录里的第三方文件换行不归我们管，
+        #   不剪会把「第三方包有 CRLF」报成我们的交付缺陷（实测在 .venv 里误报 3 条）。
+        dns[:] = [d for d in dns if d not in (".git", ".venv", "node_modules", "__pycache__")]
         if ".git" in dp:
             continue
         for f in fns:
