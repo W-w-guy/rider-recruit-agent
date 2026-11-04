@@ -1,5 +1,5 @@
 {
- "count": 42,
+ "count": 59,
  "files": [
   {
    "bytes": 39,
@@ -42,9 +42,14 @@
    "sha256": "27e8febb48ada44153ea2add9969a2c50a9831a74d9755fdd53c549a888b1cc2"
   },
   {
-   "bytes": 1030,
+   "bytes": 7135,
+   "path": "app/canon.py",
+   "sha256": "ddda7474c576a44401f2e91fafe4eda50a32ea39d722891e43b7fc5d3c7b9c54"
+  },
+  {
+   "bytes": 1218,
    "path": "app/config.py",
-   "sha256": "5a7157665e128e6c000a51e9e044849c5e22eb0f51a19f0febf7318bc3ce4deb"
+   "sha256": "8a6f9d7376ae8175ffce362de16d9866eaabd9adb5f2584c89db2edeaa7f32b5"
   },
   {
    "bytes": 2132,
@@ -52,14 +57,19 @@
    "sha256": "fd832b29c5edac85932b737130579576961e15077b6bb1b24bbe590cafd6f1a9"
   },
   {
-   "bytes": 3719,
+   "bytes": 3791,
    "path": "app/engine.py",
-   "sha256": "be7548cbaf2ee380e97e418d5772b8c8e91cf86418cf0cac14e0a8a0bc603895"
+   "sha256": "ec8a49afeb1e439b5697bf76fb1fe32b26098ab4394e9a45509a592bdd41346c"
   },
   {
    "bytes": 473,
    "path": "app/errors.py",
    "sha256": "fecce88029f944a682952084d2471dbb6c563ffb1bfa211e54763ecbced5f2e0"
+  },
+  {
+   "bytes": 5042,
+   "path": "app/extract_llm.py",
+   "sha256": "9c1a51573acb447b0aae59b9a5ed707aa10ddd262367893341e5c9672b2b0f5c"
   },
   {
    "bytes": 1566,
@@ -72,9 +82,9 @@
    "sha256": "cdeee170e95d8dd998734b3cac6da199a612ea495f9be7e767e325b542b24479"
   },
   {
-   "bytes": 5279,
+   "bytes": 5938,
    "path": "app/main.py",
-   "sha256": "7741f577f969ab29a15599b424b10adcceae54f6cf80d6162206a69c3eb0566f"
+   "sha256": "933ff8bd1897eb1dbfc19d81a883b172be1bbc677c28a71fbe02d0e7e3018d24"
   },
   {
    "bytes": 0,
@@ -102,14 +112,39 @@
    "sha256": "ed4019d97b2b58993465b9f2171d9ad7cc2df08cf5bb4931a619fa629cc5cc02"
   },
   {
-   "bytes": 10062,
+   "bytes": 8190,
+   "path": "app/pipeline.py",
+   "sha256": "5edd1f65bc24b084267454ce70019207552fdad58b2067002ead5428cb979fcd"
+  },
+  {
+   "bytes": 12221,
    "path": "app/slots.py",
-   "sha256": "82f8c97e9de4022e945452580c267415b67ef48d0f2926a88fed38317a90df0a"
+   "sha256": "947f6076cf6896164a56d3a206c65e0651664b5a7737a5c9d29a81a3f15d40c1"
   },
   {
    "bytes": 7090,
    "path": "app/store.py",
    "sha256": "83809f7a51e926fc3e07ed7a69d4b1ac53e63e5ba950307ce25b71a429365ef6"
+  },
+  {
+   "bytes": 4771,
+   "path": "data/CANON.json",
+   "sha256": "e9654d2e4c721b48e01395a2e286569b86f3b21d44b956f4540bec644d6afbbd"
+  },
+  {
+   "bytes": 866,
+   "path": "data/EVAL_RUBRIC.json",
+   "sha256": "f64418687c8507d676d259b7b0c33504826dac1fa2edb6fa570e24165537ea7d"
+  },
+  {
+   "bytes": 1612,
+   "path": "data/MODEL_MEASUREMENT.json",
+   "sha256": "74e69a90d4c69b1bd3a7e5771db2fed6408e1e798b25c44655769487a24cf1f8"
+  },
+  {
+   "bytes": 1184,
+   "path": "data/blind_set.jsonl",
+   "sha256": "4e01bffadba34fa4cb6fba740f77a736e5c119d10df4f7008b377cd405b63da0"
   },
   {
    "bytes": 123639,
@@ -120,6 +155,46 @@
    "bytes": 3476,
    "path": "data/eval_300_adv.jsonl",
    "sha256": "1b9ef03918ff621ff4e22e13cf4d2ffa8674cd12b959c028a60433634b8b161d"
+  },
+  {
+   "bytes": 4633,
+   "path": "data/eval_adv.jsonl",
+   "sha256": "465b8e51f390e7d62837464546f0d6ca0fbc778b92561bfbc2fb31168427c0da"
+  },
+  {
+   "bytes": 73880,
+   "path": "data/eval_set_v2.jsonl",
+   "sha256": "73a7da95a96155eb7d78b418692d6cd2c2e3f2c232f45ca27eb9da8ea57c0a56"
+  },
+  {
+   "bytes": 1845,
+   "path": "data/wild2_set.jsonl",
+   "sha256": "229bca8f8ad83cfa3ace2f9873be07a0c6a4ed1aa8e003c87d65b937b4797f06"
+  },
+  {
+   "bytes": 1913,
+   "path": "data/wild3_set.jsonl",
+   "sha256": "e0567342e241b416c3928d31650cb42e1dbb9fe2adc1b6d50471be9f57f09929"
+  },
+  {
+   "bytes": 1863,
+   "path": "data/wild4_set.jsonl",
+   "sha256": "aa0a4bdbf5d370c90b8fdfe546280ce3df86b05c14b24f8122317d6936889b7a"
+  },
+  {
+   "bytes": 1862,
+   "path": "data/wild5_set.jsonl",
+   "sha256": "9286baae9c33d22a7cd15490f20acd191b391d891a92dafb8f14a94492fefcf5"
+  },
+  {
+   "bytes": 1866,
+   "path": "data/wild6_set.jsonl",
+   "sha256": "faa9db9385506c5698f4f78588eef438999a88c42e3beb6a96f6bff296a87745"
+  },
+  {
+   "bytes": 3185,
+   "path": "data/wild_set.jsonl",
+   "sha256": "a4cbd1bfc1d593d457f33d5f0e2f6211c7525245323769d90c7271216db93f51"
   },
   {
    "bytes": 1041,
@@ -157,6 +232,11 @@
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   {
+   "bytes": 8631,
+   "path": "tests/test_acceptance.py",
+   "sha256": "6ef11c46d7b26df020c76d4034df2f84456ce671f64525c3df891666f59a335e"
+  },
+  {
    "bytes": 6435,
    "path": "tests/test_contract.py",
    "sha256": "70f2a516c0373c04714b3a64c91e36a6504b7b507ff0ed6e14247c78a2ebe58d"
@@ -177,6 +257,11 @@
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   {
+   "bytes": 2152,
+   "path": "tools/check_model.py",
+   "sha256": "c737baed7492cb4005130d5fa6b22c492140b47d3df6e3a94993a9f3c24f9653"
+  },
+  {
    "bytes": 1967,
    "path": "tools/check_package.py",
    "sha256": "8209130678ccf36df66d193c533f6b3217c15e693c60f44219a120ea69149cea"
@@ -187,9 +272,9 @@
    "sha256": "8e664d7d2bd3975bef1e8a133d7bffa04ba18430226686701d28ccb49d5b2959"
   },
   {
-   "bytes": 3365,
+   "bytes": 4960,
    "path": "tools/eval.py",
-   "sha256": "a797ce4b6b50c506cfbe981ba292e1d55fdb7cbc92ec50260035729e17a9c485"
+   "sha256": "3d3633ba03838d6824809269b77246f2e7f95985982d6cc9ccaba48cf18f2ea9"
   },
   {
    "bytes": 5429,
@@ -212,5 +297,5 @@
    "sha256": "9a7a40b1a6dd8dc9d2ba4d26e8057c3a2d6d08c7221fd56cc87cdcadde69af06"
   }
  ],
- "total_bytes": 230152
+ "total_bytes": 365455
 }

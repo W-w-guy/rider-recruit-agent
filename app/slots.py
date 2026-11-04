@@ -101,7 +101,8 @@ def extract(t, field):
         m = re.search(r"(现在|马上|今天|明天|后天|随时|本周末|下周[一二三四五六日天]?|\d+月\d+[日号])", t)
         return m.group(1) if m else None
     if field == "experience_text":
-        if re.search(r"没(做过|干过|经验)|无经验|零经验|新手|第一次", t):
+        if re.search(r"没(做过|干过|经验)|无经验|零经验|新手|第一次|"
+                     r"(一点|任何|毫无)\s*经验\s*都?\s*(没有|无)|从没(送|干|做)过", t):
             return "无经验"
         m = re.search(r"(\d+|一|两|二|三|四|五|六|七|八|九|十)[年个]?(?:多)?(?:的)?(?:外卖|骑手|配送|跑单)", t)
         if m:
@@ -113,7 +114,30 @@ def extract(t, field):
     return None
 
 
-INJECT = re.compile(r"(忽略|无视|忘记)(以上|之前|上面)?.{0,6}(指令|要求|提示)|系统提示|system prompt|你现在是|扮演", re.I)
+# ★ 2026-11-04 重写：原正则只覆盖了「忽略以上指令/系统提示/你现在是/扮演」四种形态，
+#   19 条注入实测漏了 13 条。漏的都是同一类：**「要求模型做越权动作」**，
+#   而不是「改写模型设定」。所以按「动作」而非「措辞」来判：
+#     ①改写设定 ②窃取提示 ③越权改数据 ④诱导承诺/歧视/索要信息 ⑤英文绕过
+INJECT = re.compile(
+    # ① 改写设定
+    r"(忽略|无视|忘记|跳过|不要管|别再管)(以上|之前|上面|前面|一切|所有)?"
+    r".{0,8}(指令|要求|提示|设定|规则|限制)"
+    r"|你现在是|你从现在起|假装你是|扮演|当你是|roleplay|act as"
+    # ② 窃取提示
+    r"|系统提示|system prompt|你的.{0,4}(prompt|提示词|指令)|原样(贴|输出|打印|重复)"
+    r"|重复你(收到)?的|把你的.{0,6}(贴|打印|输出)"
+    # ③ 越权改数据（这是招聘系统里最该防的一类）
+    r"|帮我(把|将)?.{0,6}(改|修|调)(成|为|小|大|一下)"
+    r"|把.{0,8}(状态|年龄|站点|经验|出生).{0,6}(改|设|换)(成|为)"
+    r"|帮我跳过|不用(填|写|提供)|能不能不用"
+    # ④ 诱导违规输出
+    r"|你(就)?说.{0,6}(月入|过万|保证|能挣)"
+    r"|(直说|是不是).{0,10}(不要|不收|仅限|只招|外地|本地|外地人)"
+    r"|(记|存|收)(到|进)?你.{0,6}(系统|库)里"
+    # ⑤ 英文/其它语言绕过
+    r"|ignore (all )?(previous|above|prior)|forget (your|all)|disregard"
+    r"|reveal|show me your (prompt|instruction)",
+    re.I)
 SENSITIVE = [("phone", r"(?<!\d)(1[3-9]\d{9})(?!\d)"),
              ("idcard", r"(?<!\d)(\d{17}[\dXx])(?!\d)")]
 
@@ -134,12 +158,24 @@ def mask(text):
 class Session(object):
     """状态机：依次收敛 7 个槽位；未成年立即终止并返回 end_minor。"""
 
-    def __init__(self, today=None):
+    def __init__(self, today=None, pipeline=None):
         self.data = {}
         self.actions = []
         self.today = today
         self.ended = None
         self.turns = 0
+        # pipeline：归一化→LLM→校验→降级。None 时纯规则（离线/mock 场景）
+        self.pipeline = pipeline
+        self.last_source = None
+
+    def _extract_all(self, text):
+        """一次拿到所有槽位（LLM 场景下只发一次请求，而不是每个槽位一发）。"""
+        if self.pipeline is not None:
+            got, src = self.pipeline.extract_all(text)
+            self.last_source = src
+            return got
+        self.last_source = "rule"
+        return {f: extract(text, f) for f in FIELDS}
 
     def missing(self):
         return [f for f in FIELDS if self.data.get(f) in (None, "")]
@@ -150,7 +186,8 @@ class Session(object):
 
     def to_state(self):
         return {"data": self.data, "ended": self.ended, "turns": self.turns,
-                "created": bool(getattr(self, "_created", False))}
+                "created": bool(getattr(self, "_created", False)),
+                "source": self.last_source}
 
     @classmethod
     def from_state(cls, st):
@@ -166,6 +203,7 @@ class Session(object):
         self.turns += 1
         self.actions = []
         clean, kinds = mask(text)
+        got = self._extract_all(clean)
         if INJECT.search(clean):
             return {"reply": "我只负责骑手报名，其它要求帮不上忙。继续报名吧。",
                     "quick_replies": [], "progress": self.progress(), "actions": ["handoff"]}
@@ -176,7 +214,7 @@ class Session(object):
             return {"reply": "报名已结束。", "quick_replies": [], "progress": self.progress(),
                     "actions": self.actions or ["end_minor"]}
         if target:
-            v = extract(clean, target)
+            v = got.get(target)
             if v not in (None, ""):
                 # ★ 未成年检查必须在【落库之前】：先写 data 再判，会让
                 #   progress 显示 2/7、且 birth_ym 留在会话状态里 —— 等于把未成年人
@@ -199,7 +237,7 @@ class Session(object):
             for f2 in self.missing():
                 if f2 == target:
                     continue
-                v2 = extract(clean, f2)
+                v2 = got.get(f2)
                 if v2 not in (None, "") and f2 != "name":
                     if f2 == "birth_ym" and age_of(v2, self.today) < 18:
                         self.ended = "end_minor"

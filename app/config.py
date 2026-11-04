@@ -14,6 +14,8 @@ class Config(object):
     redis_url = env("REDIS_URL", "")
     model_base_url = env("MODEL_BASE_URL", "")      # 空 = mock 模型
     model_name = env("MODEL_NAME", "mock-rule-v1")
+    model_api_key = env("MODEL_API_KEY", "")        # 客户自带；不落盘、不进日志
+    extract_llm = env("EXTRACT_LLM", "auto")        # auto=配了key就用，off=强制规则
     model_timeout_ms = int(env("MODEL_TIMEOUT_MS", "3000"))
     model_fallback = env("MODEL_FALLBACK", "form")  # form = 降级为表单式问答
     vault_url = env("VAULT_URL", "")                # 空 = 内置 mock（任务5）

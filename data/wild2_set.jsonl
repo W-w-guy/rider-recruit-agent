@@ -1,0 +1,24 @@
+{"id": 0, "field": "name", "utt": "我姓欧阳", "want": "欧阳"}
+{"id": 1, "field": "name", "utt": "姓孙", "want": "孙"}
+{"id": 2, "field": "name", "utt": "王", "want": "王"}
+{"id": 3, "field": "name", "utt": "叫我 Tony 就行", "want": "Tony"}
+{"id": 4, "field": "name", "utt": "我叫李明，木子李", "want": "李明"}
+{"id": 5, "field": "birth_ym", "utt": "我85的", "want": "1985-01"}
+{"id": 6, "field": "birth_ym", "utt": "零一年三月", "want": "2001-03"}
+{"id": 7, "field": "birth_ym", "utt": "二〇〇〇年十二月", "want": "2000-12"}
+{"id": 8, "field": "birth_ym", "utt": "九七年的", "want": "1997-01"}
+{"id": 9, "field": "area_text", "utt": "在城西银泰那边", "want": "城西银泰"}
+{"id": 10, "field": "area_text", "utt": "钱江新城", "want": "钱江新城"}
+{"id": 11, "field": "area_text", "utt": "我住临平", "want": "临平"}
+{"id": 12, "field": "job_type", "utt": "我要正式编制的那种", "want": "fulltime"}
+{"id": 13, "field": "job_type", "utt": "打零工", "want": "parttime"}
+{"id": 14, "field": "job_type", "utt": "你安排", "want": "undecided"}
+{"id": 15, "field": "has_ebike", "utt": "我自己有电瓶车", "want": true}
+{"id": 16, "field": "has_ebike", "utt": "没有，得先买", "want": false}
+{"id": 17, "field": "start_text", "utt": "这周六", "want": "本周末"}
+{"id": 18, "field": "start_text", "utt": "礼拜一", "want": "下周一"}
+{"id": 19, "field": "start_text", "utt": "半个月后", "want": "半个月后"}
+{"id": 20, "field": "start_text", "utt": "下下周", "want": "下下周"}
+{"id": 21, "field": "experience_text", "utt": "跑了四年美团", "want": "4年配送经验"}
+{"id": 22, "field": "experience_text", "utt": "干了半年", "want": "有配送经验"}
+{"id": 23, "field": "experience_text", "utt": "从没送过", "want": "无经验"}

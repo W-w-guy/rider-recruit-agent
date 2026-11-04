@@ -24,9 +24,23 @@ app = FastAPI(title="rider-recruit-agent (task 1/5)", version=__version__,
 
 errors.install(app)
 
-_model = (HttpModel(CFG.model_base_url, CFG.model_name) if CFG.model_base_url
-          else MockModel())
-_engine = Engine(CFG.policy_dir, model=_model, secret=CFG.webhook_secret)
+_model = (HttpModel(CFG.model_base_url, CFG.model_name, CFG.model_api_key)
+          if CFG.model_base_url else MockModel())
+
+# ★ 抽取层的模型接入口：与政策问答共用同一套 base_url/model/key。
+#   EXTRACT_LLM=off 时强制走规则（便于离线复现）；auto 时配了 base_url 就走 LLM。
+if CFG.extract_llm != "off" and CFG.model_base_url:
+    from .extract_llm import LLMExtractor
+    from .pipeline import Pipeline
+    _llm_ex = LLMExtractor(CFG.model_base_url, CFG.model_name, CFG.model_api_key)
+    _pipeline = Pipeline(_llm_ex)
+else:
+    from .pipeline import Pipeline
+    _llm_ex = None
+    _pipeline = Pipeline(None)
+
+_engine = Engine(CFG.policy_dir, model=_model, secret=CFG.webhook_secret,
+                 pipeline=_pipeline)
 _store = None
 
 
@@ -47,6 +61,7 @@ def health():
     s = store()
     return {"status": "ok", "version": __version__, "store": s.kind,
             "model": getattr(_model, "name", "?"),
+            "extract": ("llm:" + CFG.model_name) if _llm_ex else "rule",
             "policy_chunks": len(_engine.chunks)}
 
 

@@ -1,0 +1,51 @@
+{
+ "measured_at": "2026-11-04",
+ "model_used": "deepseek-flash",
+ "key_policy": "key 仅在被测进程内存使用；已全量扫描确认未写入任何文件；交付件只登记模型型号",
+ "architecture_change": "span-first：模型只输出原文片段(span)，换算全部交给 app/canon.py 确定性代码",
+ "results": [
+  {
+   "stage": "规则版(改前)",
+   "wild": "wild1",
+   "acc": 0.429,
+   "n": 21
+  },
+  {
+   "stage": "LLM prompt v1",
+   "wild": "wild2",
+   "acc": 0.7083,
+   "n": 24
+  },
+  {
+   "stage": "LLM prompt v2(带示例)",
+   "wild": "wild3/4/5",
+   "acc": 0.875,
+   "n": 24,
+   "note": "三份独立语料稳定 87.5%"
+  },
+  {
+   "stage": "span-first + 等价类表",
+   "wild": "wild6",
+   "acc": 1.0,
+   "n": 24,
+   "note": "⚠️ wild6 在建表之后写的，存在污染风险，不能当作最终指标"
+  },
+  {
+   "stage": "盲测(表外说法)",
+   "wild": "blind",
+   "filled": "14/21",
+   "note": "9 条返回 None；其中约 6 条是模糊输入(国庆后/过完年/电瓶被偷)，按设计应追问而非猜测。真正缺口 2 条：千禧年的、只做夜班"
+  }
+ ],
+ "hallucination_fix": {
+  "before": "送了三年半外卖 → 5年配送经验（错）",
+  "after": "三年半 → 3年配送经验；干了两年半 → 2年配送经验（对）",
+  "how": "模型只输出 span「三年半」，canon.exp() 做确定性取整；模型不再参与任何算术"
+ },
+ "canon_table": {
+  "file": "data/CANON.json",
+  "classes": 4,
+  "forms": 167,
+  "example": "S12 = 两周后 / 半个月后 / 14天后 / 两个星期后 → 统一输出「两周后」"
+ }
+}

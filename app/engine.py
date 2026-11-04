@@ -8,9 +8,10 @@ from .outbox import Outbox
 
 
 class Engine(object):
-    def __init__(self, policy_dir, model=None, secret="dev-secret"):
+    def __init__(self, policy_dir, model=None, secret="dev-secret", pipeline=None):
         self.chunks = kb.load(policy_dir)
         self.model = model
+        self.pipeline = pipeline
         self.outbox = Outbox(secret)
         self.stats = {"policy_q": 0, "policy_ok": 0, "handoff": 0,
                       "violations": 0, "degraded": 0, "sessions": 0,
@@ -19,7 +20,7 @@ class Engine(object):
     # ---------- 会话 ----------
     def new_session(self, today=None):
         self.stats["sessions"] += 1
-        s = slots.Session(today)
+        s = slots.Session(today, pipeline=self.pipeline)
         s.consent = {"consent_version": "v1", "consent_at": slots_now()}
         return s
 
