@@ -98,6 +98,7 @@ python tools/verify.py
 | 4 | `actions` 里 `show_stations` 重复 | 状态机与主流程各加一次 |
 | 5 | eval 断言「未成年 birth_ym 要落库」 | 测试写错了，会逼实现保存未成年人信息；改成判「未落库 + 已终止」 |
 | 6 | `kb.load` 未关文件 / `clean.py` 需自检残留 | 前者 ResourceWarning，后者是上个项目踩过的「清理工具给自己发合格证」 |
+| 9 | **并发丢失更新**（同一会话） | 7 条消息并发打同一 session：各自读到空 state、各自写回一个槽位，最后互相覆盖 → 7 项永远收不齐、**0 条候选人落库**，且全程无报错。真容器实测复现。修法：`store.mutate_session()` 原子读-改-写（PG 用 `SELECT ... FOR UPDATE`），并加 store 层并发用例（回退后实测 `2 != 20` 变红）。⚠️ 端到端并发用例在内存后端下恒真、回退也不红——所以真正锁住缺陷的是 store 层那条 |
 | 8 | **候选人不落库** | `main.py` 只调 `_engine.on_complete()`（它只发 outbox 事件），从没调 `store().create_candidate()`。真容器实测 `candidates` 表 **0 行**，而接口返回值里 `candidate` 齐全 —— 内存后端 + 只断言返回值的测试永远发现不了。修法：落库 + 新增 `test_candidate_persisted`（回退修复后该用例变红，已验证） |
 | 7 | **CRLF 污染**：在 Windows 上改文件，`open(...,"w")` 自动写成 CRLF | 我是在 `make_manifest` 之后又改了两个文件，哈希算的是 CRLF、git 存的是 LF → **买家 clone 下来 verify 报「哈希不符」，看起来像包被改过**。Windows 全绿、只有 Ubuntu 暴露。修法：`clean.py` 增加换行归一化，`verify.py` 增加「无 CRLF」检查项 |
 

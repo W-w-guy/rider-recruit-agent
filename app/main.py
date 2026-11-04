@@ -66,34 +66,33 @@ def _load(sid):
 @app.post("/api/v1/agent/sessions/{sid}/messages", response_model=contract.MessageOut)
 def post_message(sid: str, body: contract.MessageIn,
                  x_request_id: Optional[str] = Header(None, alias="X-Request-Id")):
-    rec = _load(sid)
-    sess = slots.Session.from_state(rec["state"])
     t0 = time.time()
-    out = sess.say(body.text)
-    store().save_session(sid, sess.to_state())
 
-    # 收齐 → 建候选人并给预约动作。
-    # ★ 用 to_state()["created"] 判重，不用 getattr(sess,"_created") ——
-    #   后者每次请求都是新对象（from_state 后才设），会导致每次收齐都重复建人。
-    already = bool(sess.to_state().get("created"))
-    if not sess.missing() and not already:
-        cand = _engine.on_complete(sess)
-        # ★ 2026-11-04 修：原先只调 _engine.on_complete()（它只发 outbox 事件），
-        #   从没调用 store().create_candidate() → 真容器实测 candidates 表 0 行。
-        #   返回值里有 candidate、接口看起来完全正常，所以内存后端 + 只断言返回值的测试
-        #   永远发现不了：数据从来没落过库。
-        cand = store().create_candidate(cand)
-        sess._created = True
-        store().save_session(sid, sess.to_state())
+    def _apply(st):
+        sess = slots.Session.from_state(st)
+        out = sess.say(body.text)
+        created = None
+        # ★ 用 to_state()["created"] 判重；收齐且未建过人才建。
+        #   整段在 store.mutate_session 的原子区内执行，避免并发丢失更新。
+        if not sess.missing() and not sess.to_state().get("created"):
+            cand = _engine.on_complete(sess)
+            cand = store().create_candidate(cand)     # 必须真的落库
+            sess._created = True
+            created = cand
+        return sess.to_state(), (out, created)
+
+    got = store().mutate_session(sid, _apply)
+    if got is None:
+        raise ApiError("session_not_found", "会话不存在或已过期", 404)
+    out, cand = got
+
+    if cand is not None:
         acts = [a for a in (out.get("actions") or []) if a != "show_stations"]
         out["actions"] = acts + ["show_stations"]
         out["stations"] = _engine.stations()
         out["candidate"] = {k: cand.get(k) for k in
                             ("birth_ym", "area_text", "job_type", "has_ebike",
                              "start_text", "experience_text", "status")}
-    elif already and not sess.missing():
-        # 已建过人：再来消息只回进度，不重复建
-        out["actions"] = list(out.get("actions") or [])
 
     tok = {"in": getattr(_model, "tokens_in", 0), "out": getattr(_model, "tokens_out", 0)}
     out.setdefault("citations", [])

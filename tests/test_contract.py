@@ -111,6 +111,33 @@ class ApiEndpoints(unittest.TestCase):
         after = self.c.get("/api/v1/candidates").json()["total"]
         self.assertEqual(before, after)
 
+    def test_concurrent_messages_no_lost_update(self):
+        """★ 7 条消息并发打同一会话：不得丢失更新。
+
+        修之前实测：7 个请求各自读到空 state、各自写回一个槽位，最后互相覆盖，
+        7 项永远收不齐 → **0 条候选人落库**。而且全程无报错，只能靠计数发现。
+        """
+        import threading
+        before = self.c.get("/api/v1/candidates").json()["total"]
+        sid = self.c.post("/api/v1/agent/sessions").json()["session_id"]
+        msgs = ["我叫周涛", "1996年2月", "住在文晖路", "全职", "有电动车", "明天", "干过三年外卖"]
+        errs = []
+
+        def w(m):
+            try:
+                self.c.post("/api/v1/agent/sessions/%s/messages" % sid, json={"text": m})
+            except Exception as e:      # noqa: BLE001
+                errs.append(str(e))
+
+        ts = [threading.Thread(target=w, args=(m,)) for m in msgs]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        after = self.c.get("/api/v1/candidates").json()["total"]
+        self.assertEqual(errs, [])
+        self.assertEqual(after - before, 1, "并发下应恰好落库 1 条候选人，实际 %d" % (after - before))
+
     def test_openapi_paths(self):
         d = self.c.get("/openapi.json").json()
         for p in ["/api/v1/agent/sessions", "/api/v1/agent/sessions/{sid}/messages",

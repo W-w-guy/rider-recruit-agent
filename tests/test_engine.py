@@ -142,5 +142,35 @@ class OutboxTest(unittest.TestCase):
         self.assertEqual(ob.pending(), [])
 
 
+class StoreAtomicity(unittest.TestCase):
+    """直接测存储层原子性：并发 mutate 不得丢失更新。
+
+    ★ 为什么单测这条：端到端的并发用例在内存后端下往往恒真（GIL + TestClient 提前串行化），
+      回退修复也不会变红 —— 那等于没锁住。这里把竞态收敛到 store 一层，
+      20 个线程各自 +1，最后必须正好 20。非原子实现下实测只有个位数。
+    """
+
+    def _run(self, store):
+        import threading
+        sid = store.create_session()
+
+        def bump(_st):
+            st = dict(_st or {})
+            st["n"] = int(st.get("n") or 0) + 1
+            return st, None
+
+        ts = [threading.Thread(target=store.mutate_session, args=(sid, bump)) for _ in range(20)]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        return int((store.get_session(sid)["state"] or {}).get("n") or 0), store
+
+    def test_memory_atomic(self):
+        from app.store import MemoryStore
+        n, _ = self._run(MemoryStore())
+        self.assertEqual(n, 20, "并发 mutate 丢失更新：期望 20，实际 %d" % n)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

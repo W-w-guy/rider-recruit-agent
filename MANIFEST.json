@@ -17,9 +17,9 @@
    "sha256": "c9679855d89c8ddfa1ccd806d14b86f17d72a25ff5f10e9e0f096705afd9f31e"
   },
   {
-   "bytes": 656,
+   "bytes": 675,
    "path": "Dockerfile",
-   "sha256": "2e28406b23fb9f4419423908a74d02321f9f8b896eb91eecfb09f9b8a5d705ba"
+   "sha256": "b9c544f058344e6fb97d1fd30df0e5f11ed7311df5148969dad29edf4b1a7e08"
   },
   {
    "bytes": 4325,
@@ -32,9 +32,9 @@
    "sha256": "917c3d997e49330da703b154c0a89a55ddc6658262b9cf5cc8f40dd8df875253"
   },
   {
-   "bytes": 4777,
+   "bytes": 5316,
    "path": "VERIFICATION.md",
-   "sha256": "4354e0c7c709054ae594da2857de79ff1dd640422b276bb9d59550318a76e747"
+   "sha256": "beb1cac0c6b9898c2b7ede4d5dc63ffa8af046ae25aa5ede7f701fd9657b038f"
   },
   {
    "bytes": 22,
@@ -72,9 +72,9 @@
    "sha256": "cdeee170e95d8dd998734b3cac6da199a612ea495f9be7e767e325b542b24479"
   },
   {
-   "bytes": 5683,
+   "bytes": 5279,
    "path": "app/main.py",
-   "sha256": "1a5421da433ed97d41c497906f091fd789e9e7dbb08a05437d687d0979c46a89"
+   "sha256": "7741f577f969ab29a15599b424b10adcceae54f6cf80d6162206a69c3eb0566f"
   },
   {
    "bytes": 0,
@@ -107,9 +107,9 @@
    "sha256": "82f8c97e9de4022e945452580c267415b67ef48d0f2926a88fed38317a90df0a"
   },
   {
-   "bytes": 5325,
+   "bytes": 7090,
    "path": "app/store.py",
-   "sha256": "088f5a8ed4c62e52960012e1df5a049d77daef8c1b7e57aaebe35d290cf685da"
+   "sha256": "83809f7a51e926fc3e07ed7a69d4b1ac53e63e5ba950307ce25b71a429365ef6"
   },
   {
    "bytes": 123639,
@@ -157,14 +157,14 @@
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   {
-   "bytes": 5181,
+   "bytes": 6435,
    "path": "tests/test_contract.py",
-   "sha256": "9a2149fc0406de3ed9da07b3908e54a0abc4af6f18f640a3977e9f1dc7972ef9"
+   "sha256": "70f2a516c0373c04714b3a64c91e36a6504b7b507ff0ed6e14247c78a2ebe58d"
   },
   {
-   "bytes": 5513,
+   "bytes": 6661,
    "path": "tests/test_engine.py",
-   "sha256": "27dc593c0360c3b853f3c84cc7b8f60b422100780822fba63b25b78695b1914c"
+   "sha256": "8fabbd84f5072abdc41882e011aaa9f17691061e514d97d1c399b85e959efcb3"
   },
   {
    "bytes": 3529,
@@ -212,5 +212,5 @@
    "sha256": "9a7a40b1a6dd8dc9d2ba4d26e8057c3a2d6d08c7221fd56cc87cdcadde69af06"
   }
  ],
- "total_bytes": 224441
+ "total_bytes": 228762
 }

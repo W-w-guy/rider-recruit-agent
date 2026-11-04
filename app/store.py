@@ -34,6 +34,24 @@ class MemoryStore(object):
                 s["state"] = state
                 s["updated_at"] = now()
 
+    def mutate_session(self, sid, fn):
+        """原子读-改-写。fn(state) -> (new_state, extra)。返回 extra；会话不存在返回 None。
+
+        ★ 2026-11-04 修：原先 main.py 是 get_session → 改 → save_session，
+          没有锁。真容器实测：7 条消息并发打同一 session，7 个请求各自读到空 state，
+          各自写回自己那一个槽位，最后一个覆盖前面的 → 状态被冲掉、7 项永远收不齐、
+          最终 0 条候选人落库（丢失更新）。并发下「看起来没报错但什么都没存」，
+          比直接报错更难发现。
+        """
+        with self._lock:
+            s = self._sess.get(sid)
+            if not s:
+                return None
+            new_state, extra = fn(dict(s["state"] or {}))
+            s["state"] = new_state
+            s["updated_at"] = now()
+            return extra
+
     def create_candidate(self, fields):
         with self._lock:
             self._seq += 1
@@ -114,6 +132,28 @@ class PgStore(object):
     def save_session(self, sid, state):
         self._exec("UPDATE sessions SET state=%s::jsonb, updated_at=now() WHERE id=%s",
                    (json.dumps(state, ensure_ascii=False), sid))
+
+    def mutate_session(self, sid, fn):
+        """事务内 SELECT ... FOR UPDATE，把同一会话的并发写串行化。"""
+        with self._lock:
+            c = self._conn()
+            try:
+                cur = c.cursor()
+                cur.execute("SELECT state FROM sessions WHERE id=%s FOR UPDATE", (sid,))
+                row = cur.fetchone()
+                if not row:
+                    c.rollback()
+                    return None
+                new_state, extra = fn(row[0] or {})
+                cur.execute("UPDATE sessions SET state=%s::jsonb, updated_at=now() WHERE id=%s",
+                            (json.dumps(new_state, ensure_ascii=False), sid))
+                c.commit()
+                return extra
+            except Exception:
+                c.rollback()
+                raise
+            finally:
+                c.close()
 
     def create_candidate(self, fields):
         cid = "c_" + uuid.uuid4().hex[:10]

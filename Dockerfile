@@ -12,6 +12,7 @@ COPY app ./app
 COPY policy ./policy
 COPY data ./data
 COPY tools ./tools
+COPY tests ./tests
 COPY run.py README.md SETUP.md VERIFICATION.md ./
 
 USER appuser
