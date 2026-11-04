@@ -71,7 +71,7 @@ birth_ym 不落库（先判后写），后续任意消息均返回 end_minor。
 
 见 `tests/test_slots.py::Machine::test_minor_terminates_at_once`。
 
-## 四、六项自检
+## 四、七项自检
 
 ```bash
 python tools/verify.py
@@ -82,9 +82,10 @@ python tools/verify.py
 [PASS] demo 两遍字节一致      两遍 sha256 一致
 [PASS] 评测 300 条达标        抽取 100.0% 政策 100.0% 违规 0 未成年 82/82
 [PASS] 留出集泛化            92.3%（仅作泛化参考）
-[PASS] MANIFEST 哈希核对      36 文件逐个核对通过
+[PASS] 换行统一为 LF         全为 LF
+[PASS] MANIFEST 哈希核对      42 文件逐个核对通过
 [PASS] 产物无本机绝对路径      无本机绝对路径
-6 passed / 0 failed
+7 passed / 0 failed
 ```
 
 ## 五、本轮自找的 6 个缺陷（都已修）
@@ -97,6 +98,7 @@ python tools/verify.py
 | 4 | `actions` 里 `show_stations` 重复 | 状态机与主流程各加一次 |
 | 5 | eval 断言「未成年 birth_ym 要落库」 | 测试写错了，会逼实现保存未成年人信息；改成判「未落库 + 已终止」 |
 | 6 | `kb.load` 未关文件 / `clean.py` 需自检残留 | 前者 ResourceWarning，后者是上个项目踩过的「清理工具给自己发合格证」 |
+| 7 | **CRLF 污染**：在 Windows 上改文件，`open(...,"w")` 自动写成 CRLF | 我是在 `make_manifest` 之后又改了两个文件，哈希算的是 CRLF、git 存的是 LF → **买家 clone 下来 verify 报「哈希不符」，看起来像包被改过**。Windows 全绿、只有 Ubuntu 暴露。修法：`clean.py` 增加换行归一化，`verify.py` 增加「无 CRLF」检查项 |
 
 ## 六、未验证（如实）
 

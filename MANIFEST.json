@@ -32,9 +32,9 @@
    "sha256": "917c3d997e49330da703b154c0a89a55ddc6658262b9cf5cc8f40dd8df875253"
   },
   {
-   "bytes": 3934,
+   "bytes": 4375,
    "path": "VERIFICATION.md",
-   "sha256": "1275abda537aa4ee7283e7a5d476dcfd3ba30712f3ea02d2f50c65a9265ec6bb"
+   "sha256": "ef194efdece61407a3ee0f836ebb5d9ed6b6b66373f5b7b98016a09b5d0473f0"
   },
   {
    "bytes": 22,
@@ -157,9 +157,9 @@
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   {
-   "bytes": 3823,
+   "bytes": 3724,
    "path": "tests/test_contract.py",
-   "sha256": "3c50e6e01b9fdbe3eea899049938e400405fb0ed1d255991965be6ca2d7c99b8"
+   "sha256": "ce4861599184768a794f5a857000c1daab1a2ef97d166628a3d7379c630cdaf4"
   },
   {
    "bytes": 5513,
@@ -182,9 +182,9 @@
    "sha256": "8209130678ccf36df66d193c533f6b3217c15e693c60f44219a120ea69149cea"
   },
   {
-   "bytes": 2108,
+   "bytes": 3269,
    "path": "tools/clean.py",
-   "sha256": "21aec4f041acc40040e40d4aeae62f2c9e084ab2b88c6121859461f82c6197c5"
+   "sha256": "8e664d7d2bd3975bef1e8a133d7bffa04ba18430226686701d28ccb49d5b2959"
   },
   {
    "bytes": 3365,
@@ -207,10 +207,10 @@
    "sha256": "725921d196e19b3cbf5b6ce0208a5c4f9481d1dfebfed5074db444574bdb99dd"
   },
   {
-   "bytes": 4839,
+   "bytes": 5456,
    "path": "tools/verify.py",
-   "sha256": "8fdf0cc8d96feb6c5b6f5cc4de8604913f60e2c410fb3220c78ba722010566db"
+   "sha256": "fafafa6eeed9d2e82d772e45d000315fa2240d3d5709562df2bd11ca3bc04af5"
   }
  ],
- "total_bytes": 219717
+ "total_bytes": 221837
 }

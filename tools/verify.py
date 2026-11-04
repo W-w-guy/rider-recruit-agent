@@ -115,16 +115,32 @@ def t_no_abs_path():
     return not hits, "无本机绝对路径" if not hits else "泄漏: " + ",".join(hits)
 
 
+def t_no_crlf():
+    """文本文件不得含 CRLF：否则 git 归一化后 MANIFEST 哈希必然不符。"""
+    hits = []
+    for dp, dns, fns in os.walk(HERE):
+        if ".git" in dp:
+            continue
+        for f in fns:
+            if f == "MANIFEST.json" or f.endswith((".png", ".jpg", ".zip", ".pyc", ".gz")):
+                continue
+            fp = os.path.join(dp, f)
+            if b"\r\n" in open(fp, "rb").read():
+                hits.append(os.path.relpath(fp, HERE))
+    return not hits, "全为 LF" if not hits else "含 CRLF: " + ",".join(hits[:3])
+
+
 def main():
     print("=" * 70)
     chk("单元测试全过", t_tests)
     chk("demo 两遍字节一致", t_demo)
     chk("评测 300 条达标", t_eval)
     chk("留出集泛化", t_holdout)
+    chk("换行统一为 LF", t_no_crlf)
     chk("MANIFEST 哈希核对", t_manifest)
     chk("产物无本机绝对路径", t_no_abs_path)
     print("=" * 70)
-    print("%d passed / %d failed" % (6 - len(FAILS), len(FAILS)))
+    print("%d passed / %d failed" % (7 - len(FAILS), len(FAILS)))
     return 0 if not FAILS else 1
 
 

@@ -47,7 +47,35 @@ def scan():
     return hits
 
 
+BIN_EXT = (".png", ".jpg", ".zip", ".pyc", ".gz")
+
+
+def normalize_eol():
+    """把文本文件统一成 LF。
+
+    ★ 为什么会需要它：在 Windows 上用 open(...,"w") 改文件，Python 会把 \n 写成 CRLF。
+      之后 make_manifest 哈希的是 CRLF 版本，而 git（.gitattributes eol=lf）存的是 LF 版本 →
+      买家 clone 下来哈希对不上，verify 报「哈希不符」，看起来像包被改过。
+      实测踩过：Ubuntu 上 verify 报 tests/test_contract.py 哈希不符，Windows 全绿。
+    """
+    fixed = []
+    for dp, dns, fns in os.walk(HERE):
+        dns[:] = [d for d in dns if d not in (".git", ".venv", "node_modules")]
+        for f in fns:
+            if f == "MANIFEST.json" or f.endswith(BIN_EXT):
+                continue
+            fp = os.path.join(dp, f)
+            raw = open(fp, "rb").read()
+            if b"\r\n" in raw:
+                open(fp, "wb").write(raw.replace(b"\r\n", b"\n"))
+                fixed.append(os.path.relpath(fp, HERE))
+    return fixed
+
+
 def main():
+    n_eol = normalize_eol()
+    if n_eol:
+        print("换行归一化 %d 个文件: %s" % (len(n_eol), ", ".join(n_eol[:4])))
     for dp, dns, fns in os.walk(HERE, topdown=False):
         for d in list(dns):
             if d in BAD_DIRS:
