@@ -25,5 +25,22 @@
  "key_policy": {
   "model": "deepseek-flash",
   "in_files": "无（全仓扫描 0 命中）"
+ },
+ "tests": {
+  "total": 62,
+  "acceptance": "ACC1~ACC8 全过",
+  "dual_platform": "Windows 62/62 = Ubuntu 3.12 62/62"
+ },
+ "dual_platform": {
+  "ubuntu": "Python 3.12.3 从零 clone + pip install -r requirements.txt 后 62 passed；规则版评测 792/858 与 Windows 逐位一致",
+  "gotchas": [
+   "未装依赖时 13 条 SKIP，SKIP 不算通过",
+   "ROS2 PYTHONPATH 污染 venv，需 PYTHONPATH= 运行"
+  ]
+ },
+ "repo": {
+  "url": "git@github.com:W-w-guy/rider-recruit-agent.git",
+  "https_push": "假死",
+  "ssh_push": "可用"
  }
 }
