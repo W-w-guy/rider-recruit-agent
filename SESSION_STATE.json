@@ -1,0 +1,51 @@
+{
+ "saved_at": "2026-11-04T17:52:40",
+ "branch": "#1808 骑手招聘 任务1/5",
+ "repo": {
+  "url": "https://github.com/W-w-guy/rider-recruit-agent",
+  "head": "ef5be41",
+  "local": "E:\\Python\\Agent_1\\work\\clawhunt\\deliver\\_deliver_1808",
+  "pushed": true,
+  "remote_verified": "ls-remote main = ef5be41"
+ },
+ "tests": {
+  "total": 61,
+  "acceptance": "16/16 全过（合同第1~8条）",
+  "unit": "61 tests OK"
+ },
+ "key_policy": {
+  "model_measured": "deepseek-flash",
+  "key_in_files": "无（全量扫描 sk- 与明文均 0 命中）",
+  "note": "key 仅在进程内存使用过一次，已按要求清理"
+ },
+ "architecture": {
+  "slots.py": "7槽位状态机（规则基线）",
+  "canon.py + data/CANON.json": "等价类表 4类167条，S12=两周后/半个月后/14天后",
+  "extract_llm.py": "span-first：模型只输出原文片段，不换算",
+  "pipeline.py": "归一化→LLM→canon换算→失败降级到规则；已修 PII 脱敏漏点",
+  "tests/test_acceptance.py": "ACC1~ACC8 对应合同8条验收"
+ },
+ "measurements": {
+  "rule_only": 0.429,
+  "llm_v1": 0.708,
+  "llm_v2": 0.875,
+  "span_first_wild6": 1.0,
+  "note_wild6": "语料有污染，不可作为最终指标",
+  "blind_21": "14/21 有值，其中约6条是模糊输入按设计应追问"
+ },
+ "unfinished": [
+  "data/eval_set_v2.jsonl（300条按合同五类配比）已生成，但接真模型的完整跑批未完成（进程被手工中断）",
+  "规则版在该 300 条上的分项：normal 120/120、dialect 11/45、typo 22/45、injection 0/45(旧检测)、sensitive 19/25、minor 7/20 —— 说明方言/错字/未成年是规则弱项",
+  "Ubuntu 侧未重跑（虚机可能已关）",
+  "是否投标未定（等用户决定报价）"
+ ],
+ "pending_decision": [
+  "投不投 #1808",
+  "报价（建议 $500）"
+ ],
+ "other_orders": {
+  "#1804": "bidding / $500 / pending / PATCH剩1",
+  "#1539": "bidding / 39家 / 不投轮次",
+  "#1506": "submitted / funded $18 / 看护 pid 19700 + 计划任务 clawhunt_1506_sup"
+ }
+}

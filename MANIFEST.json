@@ -1,5 +1,5 @@
 {
- "count": 59,
+ "count": 61,
  "files": [
   {
    "bytes": 39,
@@ -22,9 +22,19 @@
    "sha256": "b9c544f058344e6fb97d1fd30df0e5f11ed7311df5148969dad29edf4b1a7e08"
   },
   {
+   "bytes": 1296,
+   "path": "HANDOFF_20261104.md",
+   "sha256": "01df6e1520eb13f3c07acf6270b1b599e60ec32c19e60f422acded280fdc14ca"
+  },
+  {
    "bytes": 4325,
    "path": "README.md",
    "sha256": "c5b48d0337988aaf75cb30dab93854368b591cbda54f61ba26e016448dd582bb"
+  },
+  {
+   "bytes": 2026,
+   "path": "SESSION_STATE.json",
+   "sha256": "b80cf4ec05528721d036e493de4fc3986aa5d5d65fc27530b9669fa7ebe9dc56"
   },
   {
    "bytes": 2027,
@@ -297,5 +307,5 @@
    "sha256": "9a7a40b1a6dd8dc9d2ba4d26e8057c3a2d6d08c7221fd56cc87cdcadde69af06"
   }
  ],
- "total_bytes": 365455
+ "total_bytes": 368777
 }
