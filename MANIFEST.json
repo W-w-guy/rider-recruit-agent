@@ -32,9 +32,9 @@
    "sha256": "917c3d997e49330da703b154c0a89a55ddc6658262b9cf5cc8f40dd8df875253"
   },
   {
-   "bytes": 5316,
+   "bytes": 6706,
    "path": "VERIFICATION.md",
-   "sha256": "beb1cac0c6b9898c2b7ede4d5dc63ffa8af046ae25aa5ede7f701fd9657b038f"
+   "sha256": "e4924ecc48308135e2e15a40379e34d5ca7b0117df4eddcada2ae26031cddc3b"
   },
   {
    "bytes": 22,
@@ -212,5 +212,5 @@
    "sha256": "9a7a40b1a6dd8dc9d2ba4d26e8057c3a2d6d08c7221fd56cc87cdcadde69af06"
   }
  ],
- "total_bytes": 228762
+ "total_bytes": 230152
 }

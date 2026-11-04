@@ -102,8 +102,33 @@ python tools/verify.py
 | 8 | **候选人不落库** | `main.py` 只调 `_engine.on_complete()`（它只发 outbox 事件），从没调 `store().create_candidate()`。真容器实测 `candidates` 表 **0 行**，而接口返回值里 `candidate` 齐全 —— 内存后端 + 只断言返回值的测试永远发现不了。修法：落库 + 新增 `test_candidate_persisted`（回退修复后该用例变红，已验证） |
 | 7 | **CRLF 污染**：在 Windows 上改文件，`open(...,"w")` 自动写成 CRLF | 我是在 `make_manifest` 之后又改了两个文件，哈希算的是 CRLF、git 存的是 LF → **买家 clone 下来 verify 报「哈希不符」，看起来像包被改过**。Windows 全绿、只有 Ubuntu 暴露。修法：`clean.py` 增加换行归一化，`verify.py` 增加「无 CRLF」检查项 |
 
-## 六、未验证（如实）
+## 六、真容器（Ubuntu 24.04 / Docker 29.1.3 / Compose 2.40.3）
 
-- **Ubuntu 容器内**：待补（PG16+pgvector 真容器）。Windows 侧已全绿。
-- **真实大模型**：未接（无可用 key 的 mock 环境）；降级路径已用 `TimeoutError` 模拟验证。
+```bash
+sudo API_PORT=18090 docker compose up -d --build     # pgvector/pgvector:pg16 + redis:7.2 + api
+curl -s localhost:18090/health
+# {"status":"ok","version":"1.0.0","store":"postgres","model":"mock-rule-v1","policy_chunks":15}
+```
+
+| 项 | 结果 |
+|---|---|
+| 三容器健康 | `api / db / cache` 全 healthy |
+| PG 扩展 | `plpgsql`、**`vector`** 均已装 |
+| 契约 curl 全流程 | 7 条消息 → `7/7` + `show_stations` + `candidate` + 3 个有名额站点 |
+| **候选人真落库** | `select count(*) from candidates` → 1；`name_token=〔姓名_1〕`（脱敏生效）、`area_text=古墩路` |
+| 未成年 | `2010年5月` → `actions=['end_minor']` |
+| 政策带出处 | `工资什么时候发` → `hzb_policy v2 / 结算周期` |
+| 检索不到 | `火星上有没有水` → `['handoff']`，不编造 |
+| outbox 事件 | `candidate.completed`、`handoff.requested` |
+| 并发 7 条同会话 | 新增 1 条（修复前是 **0 条**） |
+| 并发 20 条追加 | 无重复建人、0 异常 |
+| 容器内跑测试 | `Ran 44 tests OK` |
+| 容器内跑评测 | `验收第2条: PASS` |
+
+## 七、未验证（如实）
+
+- **真实大模型**：未接（评测跑的是 `MockModel`）；降级路径已用 `TimeoutError` 模拟验证。
+- **Redis 未真正使用**：`cache` 容器起得来、健康，但会话状态存在 PG，没有用 Redis；
+  契约允许 Valkey/Redis 作为栈的一部分，本任务里它没有承载体量。
+- **向量召回未启用**：`vector` 扩展已装，但缺 embedding 模型，检索走关键词层。
 - **向量召回**：pgvector 扩展就绪但未启用（缺 embedding 模型）。
