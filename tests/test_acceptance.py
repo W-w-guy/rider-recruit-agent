@@ -214,3 +214,18 @@ class ACC8_OneCommand(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+def test_acc_minor_boundary_18_must_pass():
+    """★ 边界：满 18 岁必须放行。以 2026-11 为基准，2008 年出生已成年。
+    这条是从一次真实事故里长出来的：我原来的语料把 2008 年标成未成年，
+    若照着「修」就会写出误拒成年人的 bug。"""
+    import datetime
+    e = Engine(os.path.join(HERE, "policy"))
+    today = datetime.date(2026, 11, 4)
+    for u in ["2008年3月", "零八年三月", "08年3月", "2008.03"]:
+        s = e.new_session(today)
+        s.say("我叫王强")
+        s.say(u)
+        assert s.ended is None, ("成年人被误拦: %s -> %s" % (u, s.ended))
+        assert s.data.get("birth_ym"), ("成年人出生年月没记录: %s" % u)
