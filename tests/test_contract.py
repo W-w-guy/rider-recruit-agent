@@ -11,7 +11,14 @@ try:
 except Exception:
     HAVE = False
 
+try:
+    import pydantic  # noqa: F401
+    HAVE_PYD = True
+except Exception:
+    HAVE_PYD = False
 
+
+@unittest.skipUnless(HAVE_PYD, "pydantic 未安装（先 pip install -r requirements.txt）")
 class ContractShape(unittest.TestCase):
     """不依赖 FastAPI 也能验的部分：模型字段与动作枚举。"""
 

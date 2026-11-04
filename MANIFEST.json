@@ -157,9 +157,9 @@
    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   {
-   "bytes": 3531,
+   "bytes": 3823,
    "path": "tests/test_contract.py",
-   "sha256": "0d5ff12b63a05462524e3481e8aee77944ae8c1e4bf064abfba2f77b45d72f8c"
+   "sha256": "3c50e6e01b9fdbe3eea899049938e400405fb0ed1d255991965be6ca2d7c99b8"
   },
   {
    "bytes": 5513,
@@ -212,5 +212,5 @@
    "sha256": "8fdf0cc8d96feb6c5b6f5cc4de8604913f60e2c410fb3220c78ba722010566db"
   }
  ],
- "total_bytes": 219425
+ "total_bytes": 219717
 }
