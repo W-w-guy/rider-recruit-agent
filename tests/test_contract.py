@@ -88,6 +88,29 @@ class ApiEndpoints(unittest.TestCase):
         r = self.c.post("/api/v1/agent/sessions/%s/messages" % sid, json={"text": ""})
         self.assertEqual(r.status_code, 422)
 
+    def test_candidate_persisted(self):
+        """★ 只断言返回值是不够的：候选人必须真的进了存储。
+        实测过一遍「接口返回 candidate、但 candidates 表 0 行」的假通过。"""
+        sid = self.c.post("/api/v1/agent/sessions").json()["session_id"]
+        for u in ["我叫王芳", "1998年7月", "住在古墩路", "兼职", "有辆小电驴", "下周一", "没干过"]:
+            self.c.post("/api/v1/agent/sessions/%s/messages" % sid, json={"text": u})
+        r = self.c.get("/api/v1/candidates")
+        self.assertEqual(r.status_code, 200)
+        self.assertGreaterEqual(r.json()["total"], 1)
+        cid = r.json()["items"][0]["id"]
+        self.assertEqual(self.c.get("/api/v1/candidates/%s" % cid).status_code, 200)
+
+    def test_no_duplicate_candidate(self):
+        """同一会话追加消息不得重复建人。"""
+        sid = self.c.post("/api/v1/agent/sessions").json()["session_id"]
+        for u in ["我叫赵敏", "1995年3月", "住在西溪路", "全职", "有电动车", "明天", "干过两年外卖"]:
+            self.c.post("/api/v1/agent/sessions/%s/messages" % sid, json={"text": u})
+        before = self.c.get("/api/v1/candidates").json()["total"]
+        for _ in range(3):
+            self.c.post("/api/v1/agent/sessions/%s/messages" % sid, json={"text": "谢谢"})
+        after = self.c.get("/api/v1/candidates").json()["total"]
+        self.assertEqual(before, after)
+
     def test_openapi_paths(self):
         d = self.c.get("/openapi.json").json()
         for p in ["/api/v1/agent/sessions", "/api/v1/agent/sessions/{sid}/messages",

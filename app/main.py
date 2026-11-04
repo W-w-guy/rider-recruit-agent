@@ -78,6 +78,11 @@ def post_message(sid: str, body: contract.MessageIn,
     already = bool(sess.to_state().get("created"))
     if not sess.missing() and not already:
         cand = _engine.on_complete(sess)
+        # ★ 2026-11-04 修：原先只调 _engine.on_complete()（它只发 outbox 事件），
+        #   从没调用 store().create_candidate() → 真容器实测 candidates 表 0 行。
+        #   返回值里有 candidate、接口看起来完全正常，所以内存后端 + 只断言返回值的测试
+        #   永远发现不了：数据从来没落过库。
+        cand = store().create_candidate(cand)
         sess._created = True
         store().save_session(sid, sess.to_state())
         acts = [a for a in (out.get("actions") or []) if a != "show_stations"]
