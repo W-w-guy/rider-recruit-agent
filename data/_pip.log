@@ -1,9 +1,0 @@
-Collecting pypinyin
-  Using cached pypinyin-0.55.0-py2.py3-none-any.whl.metadata (12 kB)
-Downloading pypinyin-0.55.0-py2.py3-none-any.whl (840 kB)
-   ---------------------------------------- 840.2/840.2 kB 21.2 kB/s  0:00:29
-Installing collected packages: pypinyin
-Successfully installed pypinyin-0.55.0
-
-[notice] A new release of pip is available: 26.2.1 -> 26.2.2
-[notice] To update, run: python.exe -m pip install --upgrade pip

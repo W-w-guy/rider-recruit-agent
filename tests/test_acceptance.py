@@ -205,7 +205,8 @@ class ACC8_OneCommand(unittest.TestCase):
         """★ 不能在本文件里 discover 整个 tests/ —— 会把本文件也拉进来，
         递归调用自己直到进程崩溃（实测 rc=3221225786）。改成显式跑其余模块。"""
         import subprocess
-        mods = ["tests.test_slots", "tests.test_engine", "tests.test_contract"]
+        mods = ["tests.test_slots", "tests.test_engine", "tests.test_contract",
+                "tests.test_fuzzy"]
         r = subprocess.run([sys.executable, "-B", "-m", "unittest"] + mods,
                            cwd=HERE, capture_output=True, text=True,
                            encoding="utf-8", errors="replace")
@@ -216,16 +217,26 @@ if __name__ == "__main__":
     unittest.main(verbosity=2)
 
 
-def test_acc_minor_boundary_18_must_pass():
-    """★ 边界：满 18 岁必须放行。以 2026-11 为基准，2008 年出生已成年。
+class ACC_minor_boundary(unittest.TestCase):
+    """★ 边界：满 18 岁必须放行（2026-11 基准下 2008 年出生已成年）。
     这条是从一次真实事故里长出来的：我原来的语料把 2008 年标成未成年，
-    若照着「修」就会写出误拒成年人的 bug。"""
-    import datetime
-    e = Engine(os.path.join(HERE, "policy"))
-    today = datetime.date(2026, 11, 4)
-    for u in ["2008年3月", "零八年三月", "08年3月", "2008.03"]:
-        s = e.new_session(today)
-        s.say("我叫王强")
-        s.say(u)
-        assert s.ended is None, ("成年人被误拦: %s -> %s" % (u, s.ended))
-        assert s.data.get("birth_ym"), ("成年人出生年月没记录: %s" % u)
+    若照着「修」就会写出误拒成年人的 bug。
+
+    ★ 写成 TestCase 方法而不是模块级函数：模块级 `def test_` 只有 pytest 会跑，
+      `python -m unittest discover` 不收集 —— 那条测试等于没执行，是「假通过」。
+    """
+
+    def test_acc_minor_boundary_18_must_pass(self):
+        import datetime
+        e = Engine(os.path.join(HERE, "policy"))
+        today = datetime.date(2026, 11, 4)
+        for u in ["2008年3月", "零八年三月", "08年3月", "2008.03"]:
+            s = e.new_session(today)
+            s.say("我叫王强")
+            s.say(u)
+            self.assertIsNone(s.ended, "成年人被误拦: %s -> %s" % (u, s.ended))
+            self.assertTrue(s.data.get("birth_ym"), "成年人出生年月没记录: %s" % u)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

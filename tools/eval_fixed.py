@@ -140,7 +140,7 @@ def main():
          "field_ok":fok,"field_total":ftot,
          "field_ok_strict":fok_s,"by_type":{k:{"ok":v[0],"n":v[1]} for k,v in by.items()},
          "fails":[r for r in res if not r["ok"]][:30]}
-    open(os.path.join(H,"data",os.environ.get("REPORT","report_v3.json")),"w",encoding="utf-8").write(json.dumps(out,ensure_ascii=False,indent=1))
+    open(os.path.join(H,"data",os.environ.get("REPORT","report_v3.json")),"w",encoding="utf-8",newline="\n").write(json.dumps(out,ensure_ascii=False,indent=1))
     print(json.dumps({k:out[k] for k in ("model","n","sec","case_ok","case_total","field_ok","field_total","by_type")},ensure_ascii=False,indent=1))
 
 

@@ -9,3 +9,6 @@ out/
 
 # 推送日志（Windows 下被已杀进程句柄占用，忽略即可）
 data/push*.log
+
+data/*.log
+data/diagnose.json

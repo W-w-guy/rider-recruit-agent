@@ -1,15 +1,12 @@
 {
- "saved_at": "2026-11-05",
+ "saved_at": "2026-11-06",
  "branch": "#1808 骑手招聘 任务1/5",
  "measurements": {
-  "corpus": "data/eval_set_v3.jsonl 300条全唯一",
-  "rule_field": "792/858=92.3%",
-  "llm_field": "841/858=98.0%",
-  "hard_subset_dialect_typo": "73/90=81.1%",
-  "injection": "45/45",
-  "sensitive": "25/25",
-  "minor": "20/20",
-  "tests": "63 全过"
+  "main_300_rule": "95.57% (820/858)",
+  "main_300_llm": "99.30%",
+  "blind_45_rule": "77.78%",
+  "blind_45_llm": "91.10%",
+  "note": "两个口径都报；盲测是实现未参与设计的句子，才是真实泛化"
  },
  "fixed": [
   "注入数据投毒 → 扩模式+plausible落库校验",
@@ -42,5 +39,24 @@
   "url": "git@github.com:W-w-guy/rider-recruit-agent.git",
   "https_push": "假死",
   "ssh_push": "可用"
- }
+ },
+ "position": "框架交付口径（不承诺固定准确率，卖框架+归因）",
+ "verify": "7/7 全过（67测试 / demo两遍一致 / 固定语料评测 / LF / MANIFEST 84文件 / 无绝对路径）",
+ "safety": {
+  "injection": "45/45",
+  "sensitive": "25/25",
+  "minor": "20/20",
+  "policy": "9/9",
+  "violations": 0
+ },
+ "responsibility": "框架(接口/降级/护栏/判等/评测/归因)=我方；语义能力(方言/错字/模糊时间/非标准经验)=客户选型",
+ "new_tools": [
+  "tools/diagnose.py 模型体检与归因",
+  "tools/eval_fixed.py 固定语料评测",
+  "app/fuzzy.py 相似词指向"
+ ],
+ "pending_decision": [
+  "投不投 #1808（已改回 ready_to_bid）",
+  "报价 建议 $500"
+ ]
 }

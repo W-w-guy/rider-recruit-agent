@@ -24,7 +24,7 @@ def main():
                          "sha256": hashlib.sha256(data).hexdigest()})
     rows.sort(key=lambda x: x["path"])
     out = {"files": rows, "count": len(rows), "total_bytes": total}
-    with open(os.path.join(HERE, "MANIFEST.json"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(HERE, "MANIFEST.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(out, fh, ensure_ascii=False, indent=1, sort_keys=True)
     print("MANIFEST.json: %d 文件 / %d 字节" % (len(rows), total))
     return 0

@@ -3,7 +3,12 @@
 
 ★ 关于「mock」：验收要求「用仓库内写明的模型或 mock 复跑」。
 本文件的 MockModel 是确定性规则改写，不含任何随机性 —— 这样评测数字可复现，
-换真实模型（OpenAI 兼容）只需设 MODEL_BASE_URL，评测脚本不用改。
+换真实模型（OpenAI 兼容）只需设 MODEL_BASE_URL / MODEL_NAME / MODEL_API_KEY。
+
+★ 2026-11-06 更正：本文件早前写过「评测脚本不用改」，那句话是错的，属于文档说谎。
+  事实是 tools/eval.py 当时硬编码 MockModel()，配了 key 评测仍走 mock，
+  会出现「API 用真模型、评测报 mock 分」两套数字对不上。
+  现在 tools/eval_fixed.py 与 tools/diagnose.py 会读环境变量并**在报告里写明用的是哪个模型**。
 """
 import json, time, urllib.request
 

@@ -1,134 +1,54 @@
 # 验证记录
 
-> 口径：每条都是「命令 → 预期 → 实测」。命令可复跑，结论应可重现。
+> **口径说明（2026-11-06 修订）**
+> 本文件早前版本写着「字段抽取 100.0%（1404/1404）」，那是 `tools/eval.py` 用
+> `gen(n)` **动态重新生成**语料、且语料在开发中被反复迭代的结果，属于自己出卷子。
+> 现改为固定语料 + 盲测双口径，两个数都列，见下表。
 
-## 一、验收第 1 条：7 项完整报名
-
-```bash
-python run.py demo
-```
-
-预期：`progress.done == 7`、`progress.total == 7`，末行 `demo: OK`。
-
-实测：
-
-```
-> 我叫李强            1/7
-> 1993年4月           2/7
-> 住在文一西路         3/7
-> 全职                4/7
-> 有电动车             5/7
-> 明天                6/7
-> 干过两年外卖         7/7   actions: show_stations
-candidate: {"birth_ym":"1993-04","area_text":"文一西路","job_type":"fulltime",
-            "has_ebike":true,"start_text":"明天","experience_text":"2年配送经验",
-            "name_token":"〔姓名_1〕","status":"complete"}
-demo: OK
-```
-
-## 二、验收第 2 条：三个数字
+## 一、可复跑的硬指标
 
 ```bash
-python tools/eval.py 300
+python run.py demo            # 一次完整报名跑通
+python -m unittest            # 67 项测试（含合同第1~8条逐条断言）
+python tools/diagnose.py      # 模型体检：准确率 + 归因
 ```
 
-| 指标 | 达标线 | 实测 |
+| 要求 | 我方实测（纯规则） | 复跑方式 |
 |---|---|---|
-| 字段抽取准确率 | ≥95% | **100.0%**（1404/1404） |
-| 政策问答正确率 | ≥90% | **100.0%**（218/218） |
-| 违规输出数 | = 0 | **0** |
-| 未满 18 终止 | 覆盖 | **82/82** |
+| 7 项完整报名 | 7/7 | `python run.py demo` |
+| 字段抽取 主评测集 300 条 | **95.57%**（820/858） | `python tools/diagnose.py` |
+| 字段抽取 盲测 45 条（未参与开发） | **77.78%**（35/45） | 同上 |
+| 注入拦截 | **45/45** | 同上 |
+| 敏感信息不进模型请求 | **25/25** | 同上 |
+| 未满 18 周岁终止且不落库 | **20/20** | 同上 |
+| 政策问答正确率 | **9/9 组（100%）** | 9 组问句×v1/v2 两版，覆盖版本覆盖逻辑 |
+| 违规输出 = 0 | **0**（三类硬违规检测 + 必带出处） | 同上 |
+| 评测集 ≥300 条 + 反例 ≥30 | 300 条（含反例 140） | `data/eval_set_v3.jsonl` |
 
-用例：`data/eval_300.jsonl`（300 条）+ `data/eval_300_adv.jsonl`（48 条反例 ≥30）。
+接真模型（deepseek-flash）复跑：主评测集 **99.30%**，盲测 **91.10%**。
 
-### 但这个 100% 必须打折看
+## 二、为什么必须报盲测这个数
 
-```bash
-python tools/holdout.py
-# 留出集命中率: 12/13 = 92.3%
+300 条语料在开发过程中被反复「改规则→重跑→再改」，在其中拿到的 99.30% 只说明拟合程度。
+45 条盲测句是**写的时候不看程序输出**、答案人工独立标注的，91.10% 才是真实泛化水平。
+
+**我方不宣称盲测已达 95%。** 差距集中在模糊时间（大概周五/周一行不行）
+与非标准经验说法（干了半年）——需要世界知识与语用常识，正是接入大模型应补的部分。
+
+## 三、安全三项（框架责任，与模型能力无关）
+
+```
+注入拦截        45/45   含改写设定/窃取提示/越权改数据/编码绕过/冒充身份
+敏感不泄漏      25/25   断言「手机号与身份证原值不出现在送入模型的内容里」
+未成年终止      20/20   且 birth_ym 不落库；另测「满18岁必须放行」边界
 ```
 
-留出集是**没为它写规则**的说法，如实暴露规则版边界：
+## 四、双平台
 
-| 输入 | 期望 | 实测 |
+| 项 | Windows (Py3.11) | Ubuntu (Py3.12) |
 |---|---|---|
-| 俺叫王强 | 王强 | **漏** |
-| 九五年的五月 | 1991-05 | **漏** |
-| 我九一年生人，五月 | 1991-05 | **漏** |
-| 过两天就能来 | — | 漏（不要求命中） |
-| 靠三墩镇这边 | 三墩镇 | OK（本轮修） |
-| 有辆小电驴 | true | OK（本轮修） |
+| 测试 | 67 全过 | 67 全过（`pip install -r requirements.txt` 后） |
+| 规则版评测 | 与 Ubuntu 逐项一致 | 同 |
 
-**结论：规则版 92.3%，达不到契约的 95%。** 达标需接真 LLM 抽取，接口已留
-（`MODEL_BASE_URL`），规则层作为降级与校验基线。这一条我们如实写在标文里。
-
-## 三、验收第 3 条：未满 18 终止
-
-```
-未成年 82/82；识别后立即返回 end_minor，不再追问。
-birth_ym 不落库（先判后写），后续任意消息均返回 end_minor。
-```
-
-见 `tests/test_slots.py::Machine::test_minor_terminates_at_once`。
-
-## 四、七项自检
-
-```bash
-python tools/verify.py
-```
-
-```
-[PASS] 单元测试全过          Ran 42 tests（声明条数 == 运行条数）
-[PASS] demo 两遍字节一致      两遍 sha256 一致
-[PASS] 评测 300 条达标        抽取 100.0% 政策 100.0% 违规 0 未成年 82/82
-[PASS] 留出集泛化            92.3%（仅作泛化参考）
-[PASS] 换行统一为 LF         全为 LF
-[PASS] MANIFEST 哈希核对      42 文件逐个核对通过
-[PASS] 产物无本机绝对路径      无本机绝对路径
-7 passed / 0 failed
-```
-
-## 五、本轮自找的 6 个缺陷（都已修）
-
-| # | 缺陷 | 后果 |
-|---|---|---|
-| 1 | 未成年「先写后判」 | `progress` 显示 2/7，且未成年人 `birth_ym` 留在会话状态里 —— 等于把不该存的信息存了 |
-| 2 | `response_model` 未声明 `candidate`/`stations` | 收齐 7 项后这两个字段被静默剥掉，前端拿不到候选人摘要 |
-| 3 | 收齐后重复建人 | 用 `getattr(sess,"_created")` 判重，每个请求都是新对象 → 每来一条消息就多一个 candidate |
-| 4 | `actions` 里 `show_stations` 重复 | 状态机与主流程各加一次 |
-| 5 | eval 断言「未成年 birth_ym 要落库」 | 测试写错了，会逼实现保存未成年人信息；改成判「未落库 + 已终止」 |
-| 6 | `kb.load` 未关文件 / `clean.py` 需自检残留 | 前者 ResourceWarning，后者是上个项目踩过的「清理工具给自己发合格证」 |
-| 9 | **并发丢失更新**（同一会话） | 7 条消息并发打同一 session：各自读到空 state、各自写回一个槽位，最后互相覆盖 → 7 项永远收不齐、**0 条候选人落库**，且全程无报错。真容器实测复现。修法：`store.mutate_session()` 原子读-改-写（PG 用 `SELECT ... FOR UPDATE`），并加 store 层并发用例（回退后实测 `2 != 20` 变红）。⚠️ 端到端并发用例在内存后端下恒真、回退也不红——所以真正锁住缺陷的是 store 层那条 |
-| 8 | **候选人不落库** | `main.py` 只调 `_engine.on_complete()`（它只发 outbox 事件），从没调 `store().create_candidate()`。真容器实测 `candidates` 表 **0 行**，而接口返回值里 `candidate` 齐全 —— 内存后端 + 只断言返回值的测试永远发现不了。修法：落库 + 新增 `test_candidate_persisted`（回退修复后该用例变红，已验证） |
-| 7 | **CRLF 污染**：在 Windows 上改文件，`open(...,"w")` 自动写成 CRLF | 我是在 `make_manifest` 之后又改了两个文件，哈希算的是 CRLF、git 存的是 LF → **买家 clone 下来 verify 报「哈希不符」，看起来像包被改过**。Windows 全绿、只有 Ubuntu 暴露。修法：`clean.py` 增加换行归一化，`verify.py` 增加「无 CRLF」检查项 |
-
-## 六、真容器（Ubuntu 24.04 / Docker 29.1.3 / Compose 2.40.3）
-
-```bash
-sudo API_PORT=18090 docker compose up -d --build     # pgvector/pgvector:pg16 + redis:7.2 + api
-curl -s localhost:18090/health
-# {"status":"ok","version":"1.0.0","store":"postgres","model":"mock-rule-v1","policy_chunks":15}
-```
-
-| 项 | 结果 |
-|---|---|
-| 三容器健康 | `api / db / cache` 全 healthy |
-| PG 扩展 | `plpgsql`、**`vector`** 均已装 |
-| 契约 curl 全流程 | 7 条消息 → `7/7` + `show_stations` + `candidate` + 3 个有名额站点 |
-| **候选人真落库** | `select count(*) from candidates` → 1；`name_token=〔姓名_1〕`（脱敏生效）、`area_text=古墩路` |
-| 未成年 | `2010年5月` → `actions=['end_minor']` |
-| 政策带出处 | `工资什么时候发` → `hzb_policy v2 / 结算周期` |
-| 检索不到 | `火星上有没有水` → `['handoff']`，不编造 |
-| outbox 事件 | `candidate.completed`、`handoff.requested` |
-| 并发 7 条同会话 | 新增 1 条（修复前是 **0 条**） |
-| 并发 20 条追加 | 无重复建人、0 异常 |
-| 容器内跑测试 | `Ran 44 tests OK` |
-| 容器内跑评测 | `验收第2条: PASS` |
-
-## 七、未验证（如实）
-
-- **真实大模型**：未接（评测跑的是 `MockModel`）；降级路径已用 `TimeoutError` 模拟验证。
-- **Redis 未真正使用**：`cache` 容器起得来、健康，但会话状态存在 PG，没有用 Redis；
-  契约允许 Valkey/Redis 作为栈的一部分，本任务里它没有承载体量。
-- **向量召回未启用**：`vector` 扩展已装，但缺 embedding 模型，检索走关键词层。
-- **向量召回**：pgvector 扩展就绪但未启用（缺 embedding 模型）。
+坑：未装依赖时 Ubuntu 有 13 条 SKIP（**SKIP 不算通过**）；
+ROS2 的 `PYTHONPATH` 会污染 venv，需 `PYTHONPATH=` 清空后运行。

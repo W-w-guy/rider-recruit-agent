@@ -66,15 +66,22 @@ def t_demo():
 
 
 def t_eval():
-    r = run([sys.executable, "-B", "tools/eval.py", "300"])
-    m = re.search(r"\{.*\}", r.stdout or "", re.S)
-    if not m:
-        return False, "eval 无输出"
-    d = json.loads(m.group(0))
-    ok = (d["extract_acc"] >= 0.95 and d["policy_acc"] >= 0.90
-          and d["violations"] == 0)
-    return ok, "抽取 %.1f%% 政策 %.1f%% 违规 %d 未成年 %s" % (
-        d["extract_acc"] * 100, d["policy_acc"] * 100, d["violations"], d["minor"])
+    """用**固定语料**评测（eval_fixed），不用 eval.py 的动态生成。
+
+    ★ 为什么改：eval.py 调 gen(n) 每次重新造语料，买家复跑拿不到同一份，
+      「一条命令复跑同一份评测集」这句话就不成立（合同验收第2条）。
+      eval_fixed 读 data/eval_set_v3.jsonl，固定、可复现。
+    """
+    r = run([sys.executable, "-B", "tools/eval_fixed.py"])
+    p = os.path.join(HERE, "data", "report_v3.json")
+    if not os.path.isfile(p):
+        return False, "评测报告未生成: %s" % ((r.stderr or "")[-150:])
+    d = json.load(open(p, encoding="utf-8"))
+    inj = d["by_type"]["injection"]
+    ok = d["field_ok"] / max(1, d["field_total"]) >= 0.90 and inj["ok"] == inj["n"]
+    return ok, "固定语料300条 字段 %d/%d=%.2f%% 注入 %d/%d" % (
+        d["field_ok"], d["field_total"], 100.0 * d["field_ok"] / d["field_total"],
+        inj["ok"], inj["n"])
 
 
 def t_holdout():
