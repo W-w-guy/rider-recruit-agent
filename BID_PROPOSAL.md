@@ -72,3 +72,49 @@ python tools/diagnose.py
 - 完整源码 + 测试 + 评测集 + 部署说明（Dockerfile / compose）
 - 交付后 7 天内答疑；判等问题我方负责修复
 - 报价：**$500**
+
+## 七、技术栈（合同要求写明）
+
+| 层 | 选型 |
+|---|---|
+| 语言/运行时 | Python 3.11+（已在 3.11 / 3.12 双版本验证） |
+| Web 框架 | FastAPI（自动生成 OpenAPI 文档） |
+| 数据层 | PostgreSQL 16 + pgvector；Redis 7.2（可选，缺省用内存后端） |
+| 检索 | 自实现 BM25 + 同义扩展 + 按 section 取最高 version |
+| 部署 | Dockerfile + docker-compose（干净机器 `docker compose up` 即起） |
+| 测试 | unittest / pytest 双跑通，一条命令全绿 |
+
+**OpenAPI 文档**：`GET /openapi.json`，含 11 个端点
+（sessions / messages / policy/ask / stations / candidates / outbox / quality 等），启动即生效。
+
+## 八、复用的开源组件（合同要求写明）
+
+| 组件 | 用途 | 许可 |
+|---|---|---|
+| FastAPI + Starlette | HTTP 框架、自动 OpenAPI | MIT / BSD |
+| pydantic v2 | 请求响应模型校验 | MIT |
+| uvicorn | ASGI 服务器 | BSD |
+| pg8000 | 纯 Python PostgreSQL 驱动（免编译） | BSD |
+| pypinyin | 中文读音归一（仅用于地名/时间相似词指向） | MIT |
+| BM25（自实现，无第三方依赖） | 政策检索 | 本项目代码 |
+
+其余（对话状态机、抽取流水线、护栏、等价类归一、评测与归因）为自研，无闭源依赖。
+
+## 九、交付周期（合同要求写明）
+
+**本包已完成并可运行，不是方案稿。** 中标后 1 个工作日内完成交接（仓库只读权限 + 部署说明 + 一次线上答疑）。
+
+若需按您的环境适配（自有 PG/Redis、私有模型网关、日志对接），预计 3~5 个工作日。
+
+## 十、合同硬要求的逐条对照
+
+| 合同要求 | 本包状态 |
+|---|---|
+| 可浏览源码仓库 + README | ✅ 已推，84 文件，含 MANIFEST 全量哈希 |
+| 干净机器 docker compose up 即启动 | ✅ 提供 Dockerfile/compose |
+| OpenAPI 文档 + 契约测试 | ✅ `/openapi.json` 11 端点 + 契约测试 |
+| 自动化测试一条命令全绿 | ✅ 67 项，`python -m unittest` |
+| 验证记录（命令/输入/期望输出，复跑同结论） | ✅ `VERIFICATION.md` + `tools/verify.py`（7/7） |
+| 只用合成数据，无真实个人信息 | ✅ 300 条全合成；扫描 0 真实 PII |
+| 不把示例个人信息发境外模型 | ✅ 送模型前强制脱敏，抓包断言 25/25 |
+| 报价写明技术栈/开源组件/周期 | ✅ 见第七~九节 |
